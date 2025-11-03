@@ -76,7 +76,7 @@ class AppFooter extends HTMLElement {
   connectedCallback() {
     this.innerHTML = `
       <footer class="site-footer">
-        <p>Hecho con cariño para la clase de francés A1 · 2025</p>
+        <p>Hecho con cariño por Cleydyr de Albuquerque para la clase de francés A1 EOI Valladolid · 2025</p>
       </footer>
     `;
   }
