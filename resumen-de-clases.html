@@ -1,53 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Francés EOI 2025 - Resumen de clases</title>
-    <link rel="stylesheet" href="css/styles.css" />
-  </head>
-  <body>
-    <app-header active="resumen"></app-header>
-    <main class="main-content">
-      <header class="page-header">
-        <h1>Resumen de clases</h1>
-        <p>
-          Usa esta página para anotar lo más importante de cada sesión. Puedes
-          copiar y pegar el bloque para agregar nuevas fechas.
-        </p>
-        <button class="btn" data-action="add-summary">Añadir nuevo resumen</button>
-      </header>
-      <section class="summaries" id="summary-list">
-        <article class="summary-card">
-          <h2>Clase 1 · 15 enero</h2>
-          <ul>
-            <li>Saludos: <em>Bonjour</em>, <em>Salut</em>, <em>Au revoir</em>.</li>
-            <li>Presentaciones básicas: nombre, país, idioma.</li>
-            <li>Tarea: practicar diálogo corto con un compañero.</li>
-          </ul>
-        </article>
-        <article class="summary-card">
-          <h2>Clase 2 · 22 enero</h2>
-          <ul>
-            <li>Números 0-20 y preguntas simples.</li>
-            <li>Verbo <em>être</em> en presente.</li>
-            <li>Tarea: escuchar audio del libro (pág. 12).</li>
-          </ul>
-        </article>
-      </section>
-      <template id="summary-template">
-        <article class="summary-card">
-          <h2>Clase X · fecha</h2>
-          <ul>
-            <li>Punto importante 1.</li>
-            <li>Punto importante 2.</li>
-            <li>Punto importante 3.</li>
-          </ul>
-        </article>
-      </template>
-    </main>
-    <app-footer></app-footer>
-    <script src="js/main.js"></script>
-  </body>
-</html>
 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Francés EOI 2025 - Resumen de clases</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <app-header active="resumen"></app-header>
+  <main class="main-content">
+    <header class="page-header">
+      <h1>Resumen de clases</h1>
+      <p>
+        Usa esta página para anotar lo más importante de cada sesión. Puedes
+        copiar y pegar el bloque para agregar nuevas fechas.
+      </p>
+      <button class="btn" data-action="add-summary">Añadir nuevo resumen</button>
+    </header>
+    <section class="summaries" id="summary-list">
+      <article class="summary-card">
+        <h2>Clase 4 · 21 de octubre</h2>
+        <ul>
+          <li>consonnes (lectura participativa)</li>
+          <li>la liason</li>
+          <li>phonetique</li>
+          <li>accents</li>
+          <li>página 13 del libro (ej. 6)</li>
+        </ul>
+        <p>La próxima clase estudiaremos los diálogos de la página 12 de libro.</p>
+      </article>
+      <article class="summary-card">
+        <h2>Clase 5 · 23 de octubre</h2>
+        <ul>
+          <li><strong>Avisos:</strong> próximo martes, elección de delegado; clases de refuerzo para nivel A1 y clases
+            opcionales de teatro.</li>
+          <li>De la fotocopia dada en la clase del 21: l’accent aigu (repaso), l’accent grave, l’accent circonflexe.
+          </li>
+          <li>Del libro: el diálogo de la página 12 en audio, hemos respondido a las preguntas; hemos conocido la
+            estructura del libro (página 14); y el item 3 de la página 15 lo hemos hecho oralmente.</li>
+        </ul>
+      </article>
+      <article class="summary-card">
+        <h2>Clase 6 · 28 de octubre</h2>
+        <ul>
+          <li>elección de delegados: Cleydyr (delegado) y Alexandra (subdelegada)</li>
+          <li>accents (prática participativa por turnos)</li>
+          <li>contenido del libro: p. 15 (ejercicio 4); p. 16 (ejercicios 1 y 2); p. 17 (ejercicio 4 y 5); p. 18
+            (ejercicios 3, 4, 5, 7, 8)</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+  <app-footer></app-footer>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
