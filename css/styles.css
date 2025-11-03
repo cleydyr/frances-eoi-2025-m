@@ -219,7 +219,7 @@ a:focus {
 }
 
 .summaries,
-.notices {
+.notice-list {
   display: grid;
   gap: 1.5rem;
 }
@@ -232,9 +232,43 @@ a:focus {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
 }
 
+.notice-section {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.notice-section:last-of-type {
+  margin-bottom: 0;
+}
+
+.notice-card.expired {
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  background: rgba(111, 119, 129, 0.08);
+}
+
 .summary-card h2,
 .notice-card h2 {
   margin-top: 0;
+}
+
+.notice-expiration {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.notice-expiration time {
+  font-weight: 600;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(45, 156, 219, 0.12);
+  color: var(--muted);
+  font-style: italic;
 }
 
 .summary-card ul {

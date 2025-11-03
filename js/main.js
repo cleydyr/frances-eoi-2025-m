@@ -6,6 +6,8 @@ const NAV_ITEMS = [
   { key: "avisos", href: "avisos.html", label: "Avisos" },
 ];
 
+const DATE_FORMATTER = new Intl.DateTimeFormat("es-ES", { dateStyle: "long" });
+
 class AppHeader extends HTMLElement {
   static get observedAttributes() {
     return ["active"];
@@ -86,7 +88,7 @@ customElements.define("app-footer", AppFooter);
 
 document.addEventListener("DOMContentLoaded", () => {
   setupSummaryInteractions();
-  setupNoticeBoardInteractions();
+  loadNoticesFromJSON();
 });
 
 function setupSummaryInteractions() {
@@ -136,30 +138,140 @@ function setupSummaryInteractions() {
   });
 }
 
-function setupNoticeBoardInteractions() {
-  const noticeButton = document.querySelector('[data-action="add-notice"]');
-  const noticeBoard = document.getElementById("notice-board");
-  const noticeTemplate = document.getElementById("notice-template");
+async function loadNoticesFromJSON() {
+  const main = document.querySelector("main[data-notice-source]");
+  const currentContainer = document.getElementById("notice-current");
+  const expiredContainer = document.getElementById("notice-expired");
+  const template = document.getElementById("notice-template");
 
-  if (!noticeButton || !noticeBoard || !noticeTemplate) {
+  if (!main || !currentContainer || !expiredContainer || !template) {
     return;
   }
 
-  noticeButton.addEventListener("click", () => {
-    const title = prompt("Título del aviso (ej. Cambio de aula):");
-    if (!title) {
+  const sourceUrl = main.dataset.noticeSource || "data/avisos.json";
+
+  try {
+    const response = await fetch(sourceUrl, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Estado HTTP ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const { current, expired } = splitNotices(payload);
+
+    renderNoticeList(
+      currentContainer,
+      current,
+      template,
+      currentContainer.dataset.empty || "No hay avisos activos por ahora."
+    );
+
+    renderNoticeList(
+      expiredContainer,
+      expired,
+      template,
+      expiredContainer.dataset.empty || "Todavía no hay avisos caducados."
+    );
+  } catch (error) {
+    console.error("[Avisos] No se pudieron cargar los avisos", error);
+    renderNoticeError(currentContainer, "No se pudieron cargar los avisos.");
+    renderNoticeError(expiredContainer, "No se pudieron cargar los avisos.");
+  }
+}
+
+function splitNotices(items) {
+  if (!Array.isArray(items)) {
+    return { current: [], expired: [] };
+  }
+
+  const now = new Date();
+  const normalized = items
+    .map(normalizeNotice)
+    .filter(Boolean)
+    .map((notice) => ({ ...notice, expired: notice.expiresAt < now }))
+    .sort((a, b) => a.expiresAt - b.expiresAt);
+
+  return {
+    current: normalized.filter((notice) => !notice.expired),
+    expired: normalized.filter((notice) => notice.expired),
+  };
+}
+
+function normalizeNotice(input) {
+  if (!input) {
+    return null;
+  }
+
+  const title = typeof input.title === "string" ? input.title.trim() : "";
+  const body = typeof input.body === "string" ? input.body.trim() : "";
+  const rawDate =
+    input.expiresAt || input.expirationDate || input.expiration_date || input.expira;
+
+  if (!title || !body || !rawDate) {
+    return null;
+  }
+
+  let normalizedDate = rawDate;
+
+  if (typeof normalizedDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+    normalizedDate = `${normalizedDate}T23:59:59`;
+  }
+
+  const expiresAt = new Date(normalizedDate);
+
+  if (Number.isNaN(expiresAt.getTime())) {
+    return null;
+  }
+
+  return { title, body, expiresAt };
+}
+
+function renderNoticeList(container, items, template, emptyMessage) {
+  container.innerHTML = "";
+
+  if (!items.length) {
+    container.appendChild(createEmptyState(emptyMessage));
+    return;
+  }
+
+  items.forEach((item) => {
+    const fragment = template.content.cloneNode(true);
+    const card = fragment.querySelector(".notice-card");
+    const titleEl = fragment.querySelector(".notice-title");
+    const bodyEl = fragment.querySelector(".notice-body");
+    const timeEl = fragment.querySelector(".notice-expiration time");
+
+    if (!card || !titleEl || !bodyEl || !timeEl) {
       return;
     }
 
-    const message = prompt("Mensaje del aviso:");
-    const clone = noticeTemplate.content.cloneNode(true);
-    const card = clone.querySelector(".notice-card");
-    const heading = card.querySelector("h2");
-    const text = card.querySelector("p");
+    titleEl.textContent = item.title;
+    bodyEl.textContent = item.body;
+    timeEl.dateTime = item.expiresAt.toISOString();
+    timeEl.textContent = formatNoticeDate(item.expiresAt);
+    card.classList.toggle("expired", item.expired);
 
-    heading.textContent = title.trim();
-    text.textContent = message ? message.trim() : "Añade el mensaje del aviso aquí.";
-
-    noticeBoard.prepend(card);
+    container.appendChild(fragment);
   });
 }
+
+function renderNoticeError(container, message) {
+  container.innerHTML = "";
+  container.appendChild(createEmptyState(message));
+}
+
+function createEmptyState(message) {
+  const paragraph = document.createElement("p");
+  paragraph.className = "empty-state";
+  paragraph.textContent = message;
+  return paragraph;
+}
+
+function formatNoticeDate(date) {
+  try {
+    return DATE_FORMATTER.format(date);
+  } catch (_error) {
+    return date.toLocaleDateString();
+  }
+}
+
