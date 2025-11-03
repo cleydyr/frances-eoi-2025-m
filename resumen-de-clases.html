@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Francés EOI 2025 - Resumen de clases</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-area">
+        <span class="logo">Francés EOI 2025</span>
+        <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav">
+          <span class="sr-only">Abrir menú</span>
+          ☰
+        </button>
+      </div>
+      <nav id="main-nav" class="site-nav">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="calendario.html">Calendario</a></li>
+          <li><a href="resumen-de-clases.html" aria-current="page">Resumen de clases</a></li>
+          <li><a href="archivos.html">Archivos</a></li>
+          <li><a href="avisos.html">Avisos</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Resumen de clases</h1>
+        <p>
+          Usa esta página para anotar lo más importante de cada sesión. Puedes
+          copiar y pegar el bloque para agregar nuevas fechas.
+        </p>
+        <button class="btn" data-action="add-summary">Añadir nuevo resumen</button>
+      </header>
+      <section class="summaries" id="summary-list">
+        <article class="summary-card">
+          <h2>Clase 1 · 15 enero</h2>
+          <ul>
+            <li>Saludos: <em>Bonjour</em>, <em>Salut</em>, <em>Au revoir</em>.</li>
+            <li>Presentaciones básicas: nombre, país, idioma.</li>
+            <li>Tarea: practicar diálogo corto con un compañero.</li>
+          </ul>
+        </article>
+        <article class="summary-card">
+          <h2>Clase 2 · 22 enero</h2>
+          <ul>
+            <li>Números 0-20 y preguntas simples.</li>
+            <li>Verbo <em>être</em> en presente.</li>
+            <li>Tarea: escuchar audio del libro (pág. 12).</li>
+          </ul>
+        </article>
+      </section>
+      <template id="summary-template">
+        <article class="summary-card">
+          <h2>Clase X · fecha</h2>
+          <ul>
+            <li>Punto importante 1.</li>
+            <li>Punto importante 2.</li>
+            <li>Punto importante 3.</li>
+          </ul>
+        </article>
+      </template>
+    </main>
+    <footer class="site-footer">
+      <p>Hecho con cariño para la clase de francés A1 · 2025</p>
+    </footer>
+    <script src="js/main.js"></script>
+  </body>
+</html>
+
