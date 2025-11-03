@@ -178,7 +178,7 @@ a:focus {
 .page-header p {
   color: var(--muted);
   margin: 0;
-  max-width: 48ch;
+  max-width: 96ch;
 }
 
 .page-header .btn {
@@ -310,4 +310,3 @@ a:focus {
     justify-content: center;
   }
 }
-
