@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "browser-sync start --server . --watch --no-ui",
-    "deploy": "gh-pages -d . --cname franceseoi2025m.online"
+    "deploy": "gh-pages -d ."
   },
   "keywords": [
     "frances",
