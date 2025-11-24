@@ -12,6 +12,7 @@ on:
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
+    environment: scraper
 
     steps:
       - name: Checkout repository
