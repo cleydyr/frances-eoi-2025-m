@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import axios from "axios";
+import fs from "fs/promises";
 
 // CONFIGURATION
 const TARGET_URL =
@@ -46,23 +47,27 @@ async function run() {
       });
     }, TABLE_SELECTOR);
 
-    const structuredData = data
-      .map((row) => {
-        return {
-          [COLUMN_NAMES[0]]: row[0],
-          [COLUMN_NAMES[1]]: row[1],
-          [COLUMN_NAMES[2]]: row[2],
-        };
-      })
-      .filter((row) => row.Idioma === "FRANCÉS")
-      .filter((row) => row.Grupo.includes("A1"));
-
-    console.log("Data extracted:", structuredData);
-
-    // 4. Send to Telegram
-    await sendToTelegram(
-      `📊 **Canva Data Scrape**\n\n${humanFriendlyData(structuredData)}`
+    const currentAbsenceEntries = new Set(
+      data.map(toAbsenceEntry).filter(isFrenchA1AbsenceRow)
     );
+
+    const pastAbsences = new Set(await readPastAbsences());
+
+    const newAbsenceEntries = currentAbsenceEntries.difference(pastAbsences);
+
+    console.log("Data extracted:", currentAbsenceEntries);
+    console.log("New absence entries:", newAbsenceEntries);
+
+    if (newAbsenceEntries.size === 0) {
+      console.log("No new absence entries found");
+      return;
+    }
+
+    const message = Array.from(newAbsenceEntries)
+      .map(humanFriendlyMessage)
+      .join("\n");
+
+    await sendToTelegram(`📊 **Canva Data Scrape**\n\n${message}`);
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error:", error.message);
@@ -76,6 +81,20 @@ async function run() {
   } finally {
     await browser.close();
   }
+}
+
+type AbsenceEntry = {
+  idioma: string;
+  grupo: string;
+  fecha: string;
+};
+
+function toAbsenceEntry([idioma, grupo, fecha]: string[]): AbsenceEntry {
+  return {
+    idioma,
+    grupo,
+    fecha,
+  };
 }
 
 async function sendToTelegram(message: string) {
@@ -96,21 +115,15 @@ async function sendToTelegram(message: string) {
   }
 }
 
-function isFrenchRow(row: HTMLTableRowElement): boolean {
-  return row.cells[0].innerText.trim() === "FRANCÉS";
+function isFrenchA1AbsenceRow(absenceEntry: AbsenceEntry): boolean {
+  return absenceEntry.idioma === "FRANCÉS" && absenceEntry.grupo.includes("A1");
 }
 
-function humanFriendlyData(
-  data: Record<(typeof COLUMN_NAMES)[number], string>[]
-): string {
-  return data
-    .map(
-      (row) =>
-        `${row[COLUMN_NAMES[0]]} - ${row[COLUMN_NAMES[1]]} - ${
-          row[COLUMN_NAMES[2]]
-        }`
-    )
-    .join("\n");
+function humanFriendlyMessage(absenceEntry: AbsenceEntry): string {
+  return `${absenceEntry.idioma} - ${absenceEntry.grupo} - ${absenceEntry.fecha}`;
 }
 
-run();
+async function readPastAbsences(): Promise<Set<AbsenceEntry>> {
+  const absences = await fs.readFile("data/absences.json", "utf8");
+  return new Set(JSON.parse(absences).map(toAbsenceEntry));
+}
