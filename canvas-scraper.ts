@@ -12,8 +12,6 @@ const TABLE_SELECTOR = "table";
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-const COLUMN_NAMES = ["Idioma", "Grupo", "Fecha"] as const;
-
 async function run() {
   console.log("Starting Browser...");
   const browser = await puppeteer.launch({
