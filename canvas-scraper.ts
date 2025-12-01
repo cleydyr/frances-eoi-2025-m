@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import axios from "axios";
+import fs from "fs/promises";
 
 // CONFIGURATION
 const TARGET_URL =
@@ -11,9 +12,12 @@ const TABLE_SELECTOR = "table";
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-const COLUMN_NAMES = ["Idioma", "Grupo", "Fecha"] as const;
-
 async function run() {
+  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.error("TELEGRAM_TOKEN or TELEGRAM_CHAT_ID is not set");
+    process.exit(1);
+  }
+
   console.log("Starting Browser...");
   const browser = await puppeteer.launch({
     headless: true,
@@ -46,23 +50,29 @@ async function run() {
       });
     }, TABLE_SELECTOR);
 
-    const structuredData = data
-      .map((row) => {
-        return {
-          [COLUMN_NAMES[0]]: row[0],
-          [COLUMN_NAMES[1]]: row[1],
-          [COLUMN_NAMES[2]]: row[2],
-        };
-      })
-      .filter((row) => row.Idioma === "FRANCÉS")
-      .filter((row) => row.Grupo.includes("A1"));
-
-    console.log("Data extracted:", structuredData);
-
-    // 4. Send to Telegram
-    await sendToTelegram(
-      `📊 **Canva Data Scrape**\n\n${humanFriendlyData(structuredData)}`
+    const currentAbsenceEntries = new Set(
+      data
+        .map(toAbsenceEntry)
+        .filter(isFrenchA1AbsenceRow)
+        .map(humanFriendlyMessage)
     );
+
+    const pastAbsences = new Set(await readPastAbsences());
+
+    console.log("Past absences:", pastAbsences);
+
+    const newAbsenceEntries = currentAbsenceEntries.difference(pastAbsences);
+
+    console.log("New absence entries:", newAbsenceEntries);
+
+    if (newAbsenceEntries.size === 0) {
+      console.log("No new absence entries found");
+      return;
+    }
+
+    const message = Array.from(newAbsenceEntries).join("\n");
+
+    await sendToTelegram(`📊 **Canva Data Scrape**\n\n${message}`);
   } catch (error) {
     if (error instanceof Error) {
       console.error("Error:", error.message);
@@ -76,6 +86,20 @@ async function run() {
   } finally {
     await browser.close();
   }
+}
+
+type AbsenceEntry = {
+  idioma: string;
+  grupo: string;
+  fecha: string;
+};
+
+function toAbsenceEntry([idioma, grupo, fecha]: string[]): AbsenceEntry {
+  return {
+    idioma,
+    grupo,
+    fecha,
+  };
 }
 
 async function sendToTelegram(message: string) {
@@ -96,21 +120,18 @@ async function sendToTelegram(message: string) {
   }
 }
 
-function isFrenchRow(row: HTMLTableRowElement): boolean {
-  return row.cells[0].innerText.trim() === "FRANCÉS";
+function isFrenchA1AbsenceRow(absenceEntry: AbsenceEntry): boolean {
+  return absenceEntry.idioma === "FRANCÉS" && absenceEntry.grupo.includes("A1");
 }
 
-function humanFriendlyData(
-  data: Record<(typeof COLUMN_NAMES)[number], string>[]
-): string {
-  return data
-    .map(
-      (row) =>
-        `${row[COLUMN_NAMES[0]]} - ${row[COLUMN_NAMES[1]]} - ${
-          row[COLUMN_NAMES[2]]
-        }`
-    )
-    .join("\n");
+function humanFriendlyMessage(absenceEntry: AbsenceEntry): string {
+  return `${absenceEntry.idioma} - ${absenceEntry.grupo} - ${absenceEntry.fecha}`;
 }
 
-run();
+async function readPastAbsences(): Promise<Set<string>> {
+  const absences = await fs.readFile("data/absences.json", "utf8");
+  return new Set<string>(JSON.parse(absences) as string[]);
+}
+
+// runs the code
+await run();
