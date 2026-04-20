@@ -125,7 +125,10 @@ function isFrenchA1AbsenceRow(absenceEntry: AbsenceEntry): boolean {
 }
 
 function humanFriendlyMessage(absenceEntry: AbsenceEntry): string {
-  return `${absenceEntry.idioma} - ${absenceEntry.grupo} - ${absenceEntry.fecha}`;
+  return `${absenceEntry.idioma} - ${absenceEntry.grupo} - ${absenceEntry.fecha}`.replace(
+    "\n",
+    " ",
+  );
 }
 
 async function readPastAbsences(): Promise<Set<string>> {
