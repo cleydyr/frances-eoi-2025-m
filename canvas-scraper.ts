@@ -43,7 +43,7 @@ async function run() {
 
       return rows.map((row) => {
         const columns = row.querySelectorAll(
-          "td, th"
+          "td, th",
         ) as NodeListOf<HTMLTableCellElement>;
 
         return Array.from(columns).map((col) => col.innerText.trim());
@@ -54,7 +54,7 @@ async function run() {
       data
         .map(toAbsenceEntry)
         .filter(isFrenchA1AbsenceRow)
-        .map(humanFriendlyMessage)
+        .map(humanFriendlyMessage),
     );
 
     const pastAbsences = new Set(await readPastAbsences());
